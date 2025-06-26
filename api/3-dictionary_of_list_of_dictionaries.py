@@ -2,7 +2,6 @@
 """
 Exports all employees' TODO tasks to a JSON file.
 """
-
 import json
 import requests
 
@@ -12,10 +11,8 @@ if __name__ == "__main__":
 
     users_response = requests.get(users_url)
     todos_response = requests.get(todos_url)
-
     users = users_response.json()
     todos = todos_response.json()
-
     all_tasks = {}
 
     for user in users:
@@ -30,9 +27,6 @@ if __name__ == "__main__":
                     "task": task.get("title"),
                     "completed": task.get("completed")
                 })
-
         all_tasks[str(user_id)] = user_tasks
-
     with open("todo_all_employees.json", "w", encoding="utf-8") as jsonfile:
         json.dump(all_tasks, jsonfile)
-        
