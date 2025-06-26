@@ -1,35 +1,37 @@
 #!/usr/bin/python3
+"""
+Exports all employees' TODO tasks to a JSON file.
+"""
 
 import json
 import requests
 
+if __name__ == "__main__":
+    users_url = "https://jsonplaceholder.typicode.com/users"
+    todos_url = "https://jsonplaceholder.typicode.com/todos"
 
-def main():
-    """main function"""
-    todo_url = 'https://jsonplaceholder.typicode.com/todos'
+    users_response = requests.get(users_url)
+    todos_response = requests.get(todos_url)
 
-    response = requests.get(todo_url)
+    users = users_response.json()
+    todos = todos_response.json()
 
-    output = {}
+    all_tasks = {}
 
-    for todo in response.json():
-        user_id = todo.get('userId')
-        if user_id not in output.keys():
-            output[user_id] = []
-            user_url = 'https://jsonplaceholder.typicode.com/users/{}'.format(
-                user_id)
-            user_name = requests.get(user_url).json().get('username')
+    for user in users:
+        user_id = user.get("id")
+        username = user.get("username")
+        user_tasks = []
 
-        output[user_id].append(
-            {
-                "username": user_name,
-                "task": todo.get('title'),
-                "completed": todo.get('completed')
-            })
+        for task in todos:
+            if task.get("userId") == user_id:
+                user_tasks.append({
+                    "username": username,
+                    "task": task.get("title"),
+                    "completed": task.get("completed")
+                })
 
-    with open("todo_all_employees.json", 'w') as file:
-        json.dump(output, file)
+        all_tasks[str(user_id)] = user_tasks
 
-
-if __name__ == '__main__':
-    main()
+    with open("todo_all_employees.json", "w", encoding="utf-8") as jsonfile:
+        json.dump(all_tasks, jsonfile)
