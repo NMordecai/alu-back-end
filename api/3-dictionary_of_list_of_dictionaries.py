@@ -35,3 +35,4 @@ if __name__ == "__main__":
 
     with open("todo_all_employees.json", "w", encoding="utf-8") as jsonfile:
         json.dump(all_tasks, jsonfile)
+        
