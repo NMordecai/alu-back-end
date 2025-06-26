@@ -1,34 +1,41 @@
 #!/usr/bin/python3
+"""
+Exports tasks for a given employee ID to JSON file.
+"""
 
 import json
 import requests
 import sys
 
+if __name__ == "__main__":
+    if len(sys.argv) < 2 or not sys.argv[1].isdigit():
+        print("Usage: ./2-export_to_JSON.py <employee_id>")
+        sys.exit(1)
 
-def main():
-    """main function"""
-    user_id = int(sys.argv[1])
-    todo_url = 'https://jsonplaceholder.typicode.com/todos'
-    user_url = 'https://jsonplaceholder.typicode.com/users/{}'.format(user_id)
+    employee_id = int(sys.argv[1])
+    user_url = f"https://jsonplaceholder.typicode.com/users/{employee_id}"
+    todos_url = (
+        f"https://jsonplaceholder.typicode.com/todos?userId={employee_id}"
+    )
 
-    response = requests.get(todo_url)
-    user_name = requests.get(user_url).json().get('username')
-    user_data = []
-    output = {user_id: user_data}
+    user_response = requests.get(user_url)
+    if user_response.status_code != 200:
+        print("User not found")
+        sys.exit(1)
 
-    for todo in response.json():
-        if todo.get('userId') == user_id:
-            user_data.append(
-                {
-                    "task": todo.get('title'),
-                    "completed": todo.get('completed'),
-                    "username": user_name,
-                })
-    print(output)
-    file_name = "{}.json".format(user_id)
-    with open(file_name, 'w') as file:
-        json.dump(output, file)
+    username = user_response.json().get("username")
 
+    todos_response = requests.get(todos_url)
+    todos = todos_response.json()
 
-if __name__ == '__main__':
-    main()
+    tasks = [{
+        "task": task.get("title"),
+        "completed": task.get("completed"),
+        "username": username
+    } for task in todos]
+
+    output_data = {str(employee_id): tasks}
+    filename = f"{employee_id}.json"
+
+    with open(filename, mode="w", encoding="utf-8") as jsonfile:
+        json.dump(output_data, jsonfile)
