@@ -39,3 +39,4 @@ if __name__ == "__main__":
 
     with open(filename, mode="w", encoding="utf-8") as jsonfile:
         json.dump(output_data, jsonfile)
+        
